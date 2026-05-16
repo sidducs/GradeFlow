@@ -619,8 +619,8 @@ const GRADES = [
   {g:'B', p:8,  perf:'Very Good',     range:'70–79'},
   {g:'C', p:7,  perf:'Good',          range:'60–69'},
   {g:'D', p:6,  perf:'Fair',          range:'50–59'},
-  {g:'E', p:5,  perf:'Satisfactory',  range:'45–49'},
-  {g:'F', p:0,  perf:'Fail',          range:'< 45'},
+  {g:'E', p:5,  perf:'Satisfactory',  range:'40–49'},
+  {g:'F', p:0,  perf:'Fail',          range:'< 40'},
   {g:'W', p:0,  perf:'Withdraw',      range:'—'},
   {g:'AP',p:0,  perf:'Audit Pass',    range:'—'},
   {g:'AF',p:0,  perf:'Audit Fail',    range:'—'},
@@ -633,7 +633,7 @@ function getGradeFromTotal(total) {
   if (total >= 70) return 8;
   if (total >= 60) return 7;
   if (total >= 50) return 6;
-  if (total >= 45) return 5;
+  if (total >= 40) return 5;
   return 0;
 }
 
