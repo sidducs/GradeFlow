@@ -8,24 +8,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --bg: #0e0f11;
-  --bg2: #161719;
-  --bg3: #1e2023;
-  --bg4: #26282c;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f0f0f0;
-  --text2: #9ca3af;
-  --text3: #6b7280;
-  --accent: #6c8fff;
-  --accent2: #4f6ef7;
-  --green: #34d399;
-  --green-bg: rgba(52,211,153,0.1);
-  --red: #f87171;
-  --red-bg: rgba(248,113,113,0.1);
-  --amber: #fbbf24;
-  --amber-bg: rgba(251,191,36,0.1);
-  --blue-bg: rgba(108,143,255,0.1);
+  --bg: #0b0c10;
+  --bg2: #14161f;
+  --bg3: #1c1f2b;
+  --bg4: #252938;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --text: #f8fafc;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --accent: #a78bfa;
+  --accent2: #7c3aed;
+  --green: #10b981;
+  --green-bg: rgba(16,185,129,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --blue-bg: rgba(124,58,237,0.1);
   --radius: 12px;
   --radius-sm: 8px;
 }
@@ -396,11 +396,11 @@ input[type=range]::-webkit-slider-thumb {
     <button class="nav-item active" onclick="switchPage('calculator', this)">
       <span class="nav-icon">⊞</span> SGPA Calculator
     </button>
+    <button class="nav-item" onclick="switchPage('predictor', this)">
+      <span class="nav-icon">◎</span> GPA Predictor
+    </button>
     <button class="nav-item" onclick="switchPage('tracker', this)">
       <span class="nav-icon">◈</span> Semester Tracker
-    </button>
-    <button class="nav-item" onclick="switchPage('predictor', this)">
-      <span class="nav-icon">◎</span> What-If Predictor
     </button>
     <button class="nav-item" onclick="switchPage('reference', this)">
       <span class="nav-icon">≡</span> Grade Reference
@@ -513,7 +513,7 @@ input[type=range]::-webkit-slider-thumb {
 
   <!-- PREDICTOR -->
   <section id="page-predictor" class="page">
-    <div class="page-title">What-If Predictor</div>
+    <div class="page-title">GPA Predictor</div>
     <div class="page-sub">Simulate next semester outcomes and calculate target SGPAs.</div>
 
     <div class="card">
@@ -534,8 +534,8 @@ input[type=range]::-webkit-slider-thumb {
       </div>
       <div class="field-label">Simulate next semester SGPA</div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
-        <input type="range" id="wi-sgpa" min="0" max="10" step="0.01" value="8.0" oninput="computeWhatIf()">
-        <span id="wi-sgpa-label" class="mono" style="font-size:16px;font-weight:600;min-width:44px;color:var(--accent)">8.00</span>
+        <input type="range" id="wi-sgpa" min="0" max="10" step="0.01" value="8.0" oninput="syncPredictor('wi')">
+        <input type="number" id="wi-sgpa-num" min="0" max="10" step="0.01" value="8.0" oninput="syncPredictor('wi', true)" style="width:70px;text-align:center">
       </div>
       <div id="wi-results"></div>
     </div>
@@ -559,8 +559,8 @@ input[type=range]::-webkit-slider-thumb {
       </div>
       <div class="field-label" style="margin-bottom:6px">Target CGPA</div>
       <div style="display:flex;align-items:center;gap:12px">
-        <input type="range" id="tg-target" min="5" max="10" step="0.01" value="7.75" oninput="computeTarget()">
-        <span id="tg-target-label" class="mono" style="font-size:16px;font-weight:600;min-width:44px;color:var(--green)">7.75</span>
+        <input type="range" id="tg-target" min="5" max="10" step="0.01" value="7.75" oninput="syncPredictor('tg')">
+        <input type="number" id="tg-target-num" min="5" max="10" step="0.01" value="7.75" oninput="syncPredictor('tg', true)" style="width:70px;text-align:center">
       </div>
       <div id="tg-results"></div>
     </div>
@@ -895,12 +895,25 @@ function updateChart() {
 }
 
 // ── What-If Predictor (original, untouched) ───────────────────────────────────
+function syncPredictor(prefix, fromNum = false) {
+  const slider = document.getElementById(prefix === 'wi' ? 'wi-sgpa' : 'tg-target');
+  const num = document.getElementById(prefix === 'wi' ? 'wi-sgpa-num' : 'tg-target-num');
+  
+  if (fromNum) {
+    slider.value = num.value;
+  } else {
+    num.value = slider.value;
+  }
+  
+  if (prefix === 'wi') computeWhatIf();
+  else computeTarget();
+}
+
 function computeWhatIf() {
   const cgpa = parseFloat(document.getElementById('wi-cgpa').value) || 0;
   const done = parseFloat(document.getElementById('wi-credits').value) || 0;
   const next = parseFloat(document.getElementById('wi-next-credits').value) || 21;
   const sgpa = parseFloat(document.getElementById('wi-sgpa').value) || 0;
-  document.getElementById('wi-sgpa-label').textContent = sgpa.toFixed(2);
   const res = document.getElementById('wi-results');
   if (!cgpa || !done) { res.innerHTML = ''; return; }
   const newCGPA = (cgpa * done + sgpa * next) / (done + next);
@@ -919,7 +932,6 @@ function computeTarget() {
   const done = parseFloat(document.getElementById('tg-credits').value) || 0;
   const next = parseFloat(document.getElementById('tg-next').value) || 21;
   const target = parseFloat(document.getElementById('tg-target').value) || 7.75;
-  document.getElementById('tg-target-label').textContent = target.toFixed(2);
   const res = document.getElementById('tg-results');
   if (!cgpa || !done) { res.innerHTML = ''; return; }
   const needed = (target * (done + next) - cgpa * done) / next;
